@@ -9,77 +9,31 @@
 
 ## 📋 Mục lục
 
+- [Cách chạy](#-cách-chạy)
 - [Yêu cầu](#-yêu-cầu)
-- [Cài đặt](#-cài-đặt)
-- [Chạy ứng dụng](#-chạy-ứng-dụng)
-- [Build file .exe](#-build-file-exe)
 - [Tính năng](#-tính-năng)
 - [Vị trí dữ liệu](#-vị-trí-dữ-liệu)
 - [Xóa dữ liệu / Reset](#-xóa-dữ-liệu--reset)
+- [Giấy phép & Đóng góp](#-giấy-phép--đóng-góp)
+
+---
+
+## ▶️ Cách chạy
+
+1. **Tải file cài đặt** (bản mới nhất):
+   - [**Download GitHub.Manager.V1.1.2.exe**](https://github.com/TroLyAmazon/GitHub-Manager/releases/download/V1.1.2/GitHub.Manager.V1.1.2.exe)
+2. Mở file **`.exe`** vừa tải và chạy như ứng dụng Windows thông thường.
+
+Không cần cài Python hay build gì thêm — chỉ cần tải và chạy.
 
 ---
 
 ## 🔧 Yêu cầu
 
-| Thành phần | Phiên bản / Ghi chú |
-|------------|---------------------|
-| **Python** | 3.11 trở lên |
+| Thành phần | Ghi chú |
+|------------|---------|
 | **Hệ điều hành** | Windows (dùng `%LOCALAPPDATA%` và Windows Credential Manager) |
 | **Git** | Cài sẵn và có trong `PATH` (để clone, commit, push) |
-
----
-
-## 📦 Cài đặt
-
-**1. Vào thư mục dự án**
-
-```bash
-cd github_manager
-```
-
-**2. Tạo môi trường ảo (nên dùng)**
-
-```bash
-python -m venv .venv
-.venv\Scripts\activate
-```
-
-**3. Cài dependency**
-
-```bash
-pip install -r requirements.txt
-```
-
-Hoặc double-click file **`install_requirements.bat`** (trong thư mục `github_manager`).
-
----
-
-## ▶️ Chạy ứng dụng
-
-Trong thư mục `github_manager`:
-
-```bash
-python app.py
-```
-
----
-
-## 📤 Build file .exe
-
-Tạo file thực thi một file, không mở cửa sổ console:
-
-```bash
-cd github_manager
-pyinstaller --noconsole --onefile --name GitHubManager app.py
-```
-
-- **Kết quả:** `dist\GitHubManager.exe`
-
-Dùng file spec (tùy chọn):
-
-```bash
-pyinstaller GitHubManager.spec
-```
 
 ---
 
@@ -121,15 +75,15 @@ Token (PAT) được lưu trong **Windows Credential Manager** qua thư viện `
 Khi không dùng app nữa hoặc muốn reset:
 
 1. **Xóa dữ liệu app** (thư mục, data, logs, workspaces):  
-   Chạy **`xoa_du_lieu_app.bat`**.
+   Xóa toàn bộ thư mục: `%LOCALAPPDATA%\GitHubManager\`  
+   (Nhớ đóng app trước khi xóa.)
 
 2. **Xóa token khỏi Windows** (PAT đã lưu):  
-   Chạy **`xoa_tai_khoan_windows.bat`**.
-
-Hai file `.bat` nằm trong thư mục `github_manager`. Nhớ đóng app trước khi xóa.
+   Mở **Windows Credential Manager** → **Windows Credentials** → tìm và xóa các mục liên quan **GitHubManager**.
 
 ---
 
 ## 📄 Giấy phép & Đóng góp
 
-Dự án mở. Bạn có thể chỉnh sửa và dùng theo nhu cầu.
+Dự án **miễn phí**, mở mã nguồn. Bạn có thể dùng, chỉnh sửa và đóng góp theo nhu cầu.  
+**Vui lòng không bán** phần mềm này — hãy giữ nó free cho cộng đồng.
