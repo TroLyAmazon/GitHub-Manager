@@ -16,7 +16,7 @@ from PySide6.QtWidgets import (
     QLabel,
     QMessageBox,
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QPixmap
 import requests
 
@@ -25,8 +25,27 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from core.store_json import read_json, write_json
-from core.secrets import create_and_store_token, get_token
+from core.secrets import create_and_store_token, get_token, delete_token
 from core.github_api import get_user
+
+
+class CheckTokenWorker(QThread):
+    """Check PAT via GET /user in background."""
+    result = Signal(bool, str)  # valid, message
+
+    def __init__(self, token: str, parent=None):
+        super().__init__(parent)
+        self.token = token
+
+    def run(self):
+        if not self.token:
+            self.result.emit(False, "Không có token (đã xóa hoặc mất).")
+            return
+        user = get_user(self.token)
+        if user:
+            self.result.emit(True, f"PAT còn hạn. Login: {user.get('login', '')}")
+        else:
+            self.result.emit(False, "PAT hết hạn hoặc không hợp lệ.")
 
 
 def _accounts_data() -> dict:
@@ -147,6 +166,12 @@ class AccountsPage(QWidget):
 
         top = QHBoxLayout()
         top.addStretch()
+        self.check_btn = QPushButton("Check token (PAT còn hạn?)")
+        self.check_btn.clicked.connect(self._check_token)
+        top.addWidget(self.check_btn)
+        self.delete_btn = QPushButton("Delete account")
+        self.delete_btn.clicked.connect(self._delete_account)
+        top.addWidget(self.delete_btn)
         add_btn = QPushButton("Add Account")
         add_btn.clicked.connect(self._add_account)
         top.addWidget(add_btn)
@@ -190,6 +215,59 @@ class AccountsPage(QWidget):
         write_json("accounts.json", data)
         self._refresh_list()
         QMessageBox.information(self, "Accounts", "Account added and token stored securely.")
+
+    def _get_selected_account(self):
+        item = self.list_widget.currentItem()
+        if not item:
+            return None
+        return item.data(Qt.ItemDataRole.UserRole)
+
+    def _check_token(self):
+        acc = self._get_selected_account()
+        if not acc:
+            QMessageBox.warning(self, "Accounts", "Chọn một tài khoản trong danh sách.")
+            return
+        token = get_token(acc.get("secretKey", ""))
+        self.check_btn.setEnabled(False)
+        self.check_btn.setText("Đang kiểm tra...")
+        self._check_worker = CheckTokenWorker(token, self)
+        self._check_worker.result.connect(self._on_check_done)
+        self._check_worker.finished.connect(self._check_worker.deleteLater)
+        self._check_worker.start()
+
+    def _on_check_done(self, valid: bool, message: str):
+        self.check_btn.setEnabled(True)
+        self.check_btn.setText("Check token (PAT còn hạn?)")
+        if valid:
+            QMessageBox.information(self, "Check token", message)
+        else:
+            QMessageBox.warning(self, "Check token", message)
+
+    def _delete_account(self):
+        acc = self._get_selected_account()
+        if not acc:
+            QMessageBox.warning(self, "Accounts", "Chọn một tài khoản để xóa.")
+            return
+        label = acc.get("label", "?")
+        login = acc.get("login", "")
+        reply = QMessageBox.question(
+            self,
+            "Delete account",
+            f"Xóa tài khoản \"{label}\" ({login})?\nToken sẽ bị xóa khỏi Windows Credential Manager.",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No,
+            QMessageBox.StandardButton.No,
+        )
+        if reply != QMessageBox.StandardButton.Yes:
+            return
+        account_id = acc.get("id", "")
+        secret_key = acc.get("secretKey", "")
+        delete_token(secret_key)
+        data = _accounts_data()
+        accounts = _ensure_accounts_list(data)
+        data["accounts"] = [a for a in accounts if a.get("id") != account_id]
+        write_json("accounts.json", data)
+        self._refresh_list()
+        QMessageBox.information(self, "Accounts", "Đã xóa tài khoản và token.")
 
     def get_accounts(self):
         data = _accounts_data()
