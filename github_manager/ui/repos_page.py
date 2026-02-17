@@ -16,10 +16,22 @@ from PySide6.QtWidgets import (
     QHeaderView,
     QLabel,
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QThread, Signal
 
 from core.secrets import get_token
 from core.github_api import get_repos
+
+
+class LoadReposWorker(QThread):
+    result = Signal(object)  # list of repo dicts or None
+
+    def __init__(self, token: str, parent=None):
+        super().__init__(parent)
+        self.token = token
+
+    def run(self):
+        repos = get_repos(self.token) if self.token else None
+        self.result.emit(repos)
 
 
 class ReposPage(QWidget):

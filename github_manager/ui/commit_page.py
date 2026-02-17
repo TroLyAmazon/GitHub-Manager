@@ -249,7 +249,7 @@ class CommitPage(QWidget):
         acc = self.account_combo.currentData()
         if not acc:
             return
-        workspace = get_workspace_path(acc.get("id", ""), self.repo_combo.currentText().replace("/", "_") if self.repo_combo.currentText() else "")
+        workspace = get_workspace_path(acc.get("id", ""), self.repo_combo.currentText() or "")
         if os.path.isdir(workspace) and os.path.isdir(os.path.join(workspace, ".git")):
             from core.git_ops import get_branches
             for b in get_branches(workspace):
