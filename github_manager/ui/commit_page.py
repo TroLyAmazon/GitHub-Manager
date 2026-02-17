@@ -46,6 +46,17 @@ def _append_run(entry: dict) -> None:
     write_json("runs.json", data)
 
 
+class _LoadReposWorker(QThread):
+    result = Signal(object)
+
+    def __init__(self, token: str, parent=None):
+        super().__init__(parent)
+        self.token = token
+
+    def run(self):
+        self.result.emit(get_repos(self.token))
+
+
 class CommitWorker(QThread):
     progress = Signal(int, int, str)  # current, total, message
     finished_signal = Signal()
@@ -229,9 +240,22 @@ class CommitPage(QWidget):
         if not token:
             QMessageBox.warning(self, "Commit", "No token for this account.")
             return
-        repos = get_repos(token)
+        self.add_files_btn.setEnabled(False)
+        self.run_btn.setEnabled(False)
+        w = _LoadReposWorker(token)
+        w.result.connect(self._on_repos_loaded_commit)
+        w.finished.connect(w.deleteLater)
+        w.start()
+        self._load_repos_worker_ref = w
+
+    def _on_repos_loaded_commit(self, repos):
+        self.add_files_btn.setEnabled(True)
+        self.run_btn.setEnabled(True)
         self.repo_combo.clear()
         self._clone_url_map.clear()
+        if repos is None:
+            QMessageBox.warning(self, "Commit", "Failed to load repositories.")
+            return
         if repos:
             for r in repos:
                 full = r.get("full_name", "")

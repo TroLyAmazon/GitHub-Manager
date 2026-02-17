@@ -79,19 +79,22 @@ class ReposPage(QWidget):
             return
         self.load_btn.setEnabled(False)
         self.load_btn.setText("Loading...")
-        try:
-            repos = get_repos(token)
-            self.table.setRowCount(0)
-            if repos:
-                for r in repos:
-                    row = self.table.rowCount()
-                    self.table.insertRow(row)
-                    full = r.get("full_name", "")
-                    self.table.setItem(row, 0, QTableWidgetItem(full))
-                    vis = "Private" if r.get("private") else "Public"
-                    self.table.setItem(row, 1, QTableWidgetItem(vis))
-                    self.table.setItem(row, 2, QTableWidgetItem(r.get("default_branch", "main")))
-                    self.table.setItem(row, 3, QTableWidgetItem(""))
-        finally:
-            self.load_btn.setEnabled(True)
-            self.load_btn.setText("Load Repositories")
+        self._repos_worker = LoadReposWorker(token, self)
+        self._repos_worker.result.connect(self._on_repos_loaded)
+        self._repos_worker.finished.connect(lambda: self._repos_worker.deleteLater())
+        self._repos_worker.start()
+
+    def _on_repos_loaded(self, repos):
+        self.load_btn.setEnabled(True)
+        self.load_btn.setText("Load Repositories")
+        self.table.setRowCount(0)
+        if repos:
+            for r in repos:
+                row = self.table.rowCount()
+                self.table.insertRow(row)
+                full = r.get("full_name", "")
+                self.table.setItem(row, 0, QTableWidgetItem(full))
+                vis = "Private" if r.get("private") else "Public"
+                self.table.setItem(row, 1, QTableWidgetItem(vis))
+                self.table.setItem(row, 2, QTableWidgetItem(r.get("default_branch", "main")))
+                self.table.setItem(row, 3, QTableWidgetItem(""))
