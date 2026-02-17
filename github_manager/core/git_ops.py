@@ -94,16 +94,29 @@ def add_commit_push(
 ) -> tuple[bool, str, str]:
     """
     git add <rel_path>, git commit -m "...", git push.
-    If user_name and user_email are provided, set git config before committing.
+    If user_name and user_email are provided, set repo git config and pass
+    GIT_AUTHOR_* / GIT_COMMITTER_* env for the commit so the commit author
+    is always the account (not global git config).
     Returns (success, commit_sha, stderr_or_message).
     commit_sha is empty if failed.
     """
-    # Set git user if provided
+    # Set git user in repo if provided (for consistency)
     if user_name and user_email:
         ok, msg = set_git_user(workspace_path, user_name, user_email)
         if not ok:
             return False, "", msg
-    
+
+    # Env for git commit: override any global/local config so contributions
+    # go to the account, not the machine's default user (e.g. adcampusidentity).
+    commit_env = None
+    if user_name and user_email:
+        commit_env = {
+            "GIT_AUTHOR_NAME": user_name,
+            "GIT_AUTHOR_EMAIL": user_email,
+            "GIT_COMMITTER_NAME": user_name,
+            "GIT_COMMITTER_EMAIL": user_email,
+        }
+
     code, out, err = _run(["git", "add", rel_path], cwd=workspace_path)
     if code != 0:
         return False, "", (out + "\n" + err).strip()
@@ -111,6 +124,7 @@ def add_commit_push(
     code, out, err = _run(
         ["git", "commit", "-m", commit_message],
         cwd=workspace_path,
+        env=commit_env,
     )
     if code != 0:
         return False, "", (out + "\n" + err).strip()

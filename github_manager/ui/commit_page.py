@@ -117,11 +117,11 @@ class CommitWorker(QThread):
                 import shutil
                 shutil.copy2(src, dest_abs)
                 commit_msg = f"Upload {os.path.basename(dest_abs)}"
-                
-                # Get user name and email from account
-                user_name = self.account.get("name", self.account.get("login", ""))
-                user_email = self.account.get("email", f"{self.account.get('login', 'user')}@users.noreply.github.com")
-                
+                # Dùng đúng contributor name/email của account để contributions tính vào tài khoản,
+                # không dùng git config global của máy (ép qua GIT_AUTHOR_* trong git_ops).
+                login = self.account.get("login", "") or "user"
+                user_name = (self.account.get("name") or self.account.get("login") or "").strip() or login
+                user_email = (self.account.get("email") or "").strip() or f"{login}@users.noreply.github.com"
                 ok, commit_sha, err = add_commit_push(
                     workspace,
                     rel_path,
