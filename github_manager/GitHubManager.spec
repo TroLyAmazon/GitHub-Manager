@@ -1,12 +1,14 @@
 # -*- mode: python ; coding: utf-8 -*-
-
+# PyInstaller spec for GitHub Manager
+# Build: pyinstaller GitHubManager.spec
+# Icon: chạy python build_icon.py trước để tạo assets/icon.ico
 
 a = Analysis(
     ['app.py'],
     pathex=[],
     binaries=[],
-    datas=[],
-    hiddenimports=[],
+    datas=[('assets/icon.ico', 'assets')],
+    hiddenimports=['version'],
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
@@ -20,6 +22,7 @@ exe = EXE(
     pyz,
     a.scripts,
     a.binaries,
+    a.zipfiles,
     a.datas,
     [],
     name='GitHubManager',
@@ -35,4 +38,5 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
+    icon='assets/icon.ico',
 )

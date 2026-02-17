@@ -1,6 +1,9 @@
 """
 Main window with sidebar navigation: Accounts, Repositories, Commit & Push, Runs / Logs.
 """
+import os
+import sys
+import webbrowser
 from PySide6.QtWidgets import (
     QMainWindow,
     QWidget,
@@ -10,9 +13,14 @@ from PySide6.QtWidgets import (
     QListWidgetItem,
     QStackedWidget,
     QFrame,
+    QMenuBar,
+    QMenu,
+    QDialog,
+    QLabel,
+    QPushButton,
 )
 from PySide6.QtCore import Qt
-from PySide6.QtGui import QFont
+from PySide6.QtGui import QFont, QIcon, QAction
 
 from .accounts_page import AccountsPage
 from .repos_page import ReposPage
@@ -20,12 +28,50 @@ from .commit_page import CommitPage
 from .runs_page import RunsPage
 
 
+def _app_root():
+    if getattr(sys, "frozen", False):
+        return sys._MEIPASS
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _icon_path():
+    return os.path.join(_app_root(), "assets", "icon.ico")
+
+
+class AboutDialog(QDialog):
+    def __init__(self, version: str, github_url: str, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("About GitHub Manager")
+        layout = QVBoxLayout(self)
+        layout.addWidget(QLabel("<h2>GitHub Manager</h2>"))
+        layout.addWidget(QLabel(f"Phiên bản / Version: <b>{version}</b>"))
+        layout.addWidget(QLabel("<br/>"))
+        link_label = QLabel(f'Project: <a href="{github_url}">{github_url}</a>')
+        link_label.setOpenExternalLinks(True)
+        layout.addWidget(link_label)
+        open_btn = QPushButton("Mở link GitHub / Open GitHub")
+        open_btn.clicked.connect(lambda: webbrowser.open(github_url))
+        layout.addWidget(open_btn)
+        close_btn = QPushButton("Đóng")
+        close_btn.clicked.connect(self.accept)
+        layout.addWidget(close_btn)
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle("GitHub Manager")
+        try:
+            from version import __version__, GITHUB_URL
+        except ImportError:
+            __version__ = "?.?.?"
+            GITHUB_URL = "https://github.com/TroLyAmazon/GitHub-Manager"
+        self._version = __version__
+        self._github_url = GITHUB_URL
+        self.setWindowTitle(f"GitHub Manager  v{__version__}")
         self.setMinimumSize(900, 600)
         self.resize(1000, 700)
+        if os.path.isfile(_icon_path()):
+            self.setWindowIcon(QIcon(_icon_path()))
 
         central = QWidget()
         self.setCentralWidget(central)
@@ -65,6 +111,13 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.sidebar)
         layout.addWidget(self.stack, 1)
 
+        # Menu: Help -> About
+        menubar = self.menuBar()
+        help_menu = menubar.addMenu("&Help")
+        about_action = QAction("&About GitHub Manager", self)
+        about_action.triggered.connect(self._show_about)
+        help_menu.addAction(about_action)
+
         # Style sidebar
         self.sidebar.setFrameShape(QFrame.Shape.NoFrame)
         self.sidebar.setStyleSheet("""
@@ -85,6 +138,9 @@ class MainWindow(QMainWindow):
                 background-color: #3d3d40;
             }
         """)
+
+    def _show_about(self):
+        AboutDialog(self._version, self._github_url, self).exec()
 
     def _on_page_changed(self, row: int):
         if row >= 0:
