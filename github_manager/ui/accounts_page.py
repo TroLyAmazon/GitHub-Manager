@@ -340,9 +340,9 @@ class AccountsPage(QWidget):
         top.addWidget(add_btn)
         layout.addLayout(top)
 
-        self.table = QTableWidget(0, 5)
+        self.table = QTableWidget(0, 4)
         self.table.setHorizontalHeaderLabels([
-            "Label", "Login", "Add Account", "PAT Status", "Last check",
+            "Label", "Login", "PAT Status", "Last check",
         ])
         self.table.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeMode.Stretch)
         self.table.setSelectionBehavior(QTableWidget.SelectionBehavior.SelectRows)
@@ -359,15 +359,13 @@ class AccountsPage(QWidget):
         for row, acc in enumerate(accounts):
             self.table.setItem(row, 0, QTableWidgetItem(acc.get("label", "?")))
             self.table.setItem(row, 1, QTableWidgetItem(acc.get("login", "")))
-            add_at = _format_display_date(acc.get("addedAt", ""))
-            self.table.setItem(row, 2, QTableWidgetItem(add_at))
             status_icon, status_text = _status_icon_and_text(acc.get("patStatus", ""))
             status_item = QTableWidgetItem(status_text)
             if status_icon:
                 status_item.setIcon(status_icon)
-            self.table.setItem(row, 3, status_item)
-            self.table.setItem(row, 4, QTableWidgetItem(_format_display_date(acc.get("lastCheckAt", ""))))
-            for col in range(5):
+            self.table.setItem(row, 2, status_item)
+            self.table.setItem(row, 3, QTableWidgetItem(_format_display_date(acc.get("lastCheckAt", ""))))
+            for col in range(4):
                 item = self.table.item(row, col)
                 if item:
                     item.setData(Qt.ItemDataRole.UserRole, acc)
