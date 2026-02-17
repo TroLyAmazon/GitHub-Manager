@@ -1,0 +1,38 @@
+{
+  "version": 2,
+  "dgSpecHash": "60NoVgF+mW8=",
+  "success": true,
+  "projectFilePath": "D:\\Desktop\\GitHub-Manager\\src\\GitHubManager.Core\\GitHubManager.Core.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\DoTuanAnh\\.nuget\\packages\\credentialmanagement\\1.0.2\\credentialmanagement.1.0.2.nupkg.sha512",
+    "C:\\Users\\DoTuanAnh\\.nuget\\packages\\libgit2sharp\\0.30.0\\libgit2sharp.0.30.0.nupkg.sha512",
+    "C:\\Users\\DoTuanAnh\\.nuget\\packages\\libgit2sharp.nativebinaries\\2.0.322\\libgit2sharp.nativebinaries.2.0.322.nupkg.sha512",
+    "C:\\Users\\DoTuanAnh\\.nuget\\packages\\octokit\\1.0.0\\octokit.1.0.0.nupkg.sha512"
+  ],
+  "logs": [
+    {
+      "code": "NU1603",
+      "level": "Warning",
+      "message": "GitHubManager.Core depends on Octokit (>= 0.56.0) but Octokit 0.56.0 was not found. Octokit 1.0.0 was resolved instead.",
+      "projectPath": "D:\\Desktop\\GitHub-Manager\\src\\GitHubManager.Core\\GitHubManager.Core.csproj",
+      "warningLevel": 1,
+      "filePath": "D:\\Desktop\\GitHub-Manager\\src\\GitHubManager.Core\\GitHubManager.Core.csproj",
+      "libraryId": "Octokit",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    },
+    {
+      "code": "NU1701",
+      "level": "Warning",
+      "message": "Package 'CredentialManagement 1.0.2' was restored using '.NETFramework,Version=v4.6.1, .NETFramework,Version=v4.6.2, .NETFramework,Version=v4.7, .NETFramework,Version=v4.7.1, .NETFramework,Version=v4.7.2, .NETFramework,Version=v4.8, .NETFramework,Version=v4.8.1' instead of the project target framework 'net8.0'. This package may not be fully compatible with your project.",
+      "projectPath": "D:\\Desktop\\GitHub-Manager\\src\\GitHubManager.Core\\GitHubManager.Core.csproj",
+      "warningLevel": 1,
+      "filePath": "D:\\Desktop\\GitHub-Manager\\src\\GitHubManager.Core\\GitHubManager.Core.csproj",
+      "libraryId": "CredentialManagement",
+      "targetGraphs": [
+        "net8.0"
+      ]
+    }
+  ]
+}

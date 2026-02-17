@@ -62,6 +62,8 @@ public sealed class GitServiceLibGit2Sharp : IGitService
             double instantSpeed = 0, avgSpeed = 0, peakSpeed = 0;
             var lockObj = new object();
 
+            EnsureBranchCheckedOut(repo, branch);
+
             var sig = new Signature("GitHub Manager", "noreply@localhost", DateTimeOffset.UtcNow);
 
             repo.Index.Add(relativePathInRepo.Replace('\\', '/'));
@@ -141,5 +143,28 @@ public sealed class GitServiceLibGit2Sharp : IGitService
             sw.Stop();
             return (sha, bytesSent, sw.Elapsed.TotalSeconds);
         }, ct).ConfigureAwait(false);
+    }
+
+    private static void EnsureBranchCheckedOut(Repository repo, string branch)
+    {
+        if (repo.Head.FriendlyName == branch)
+            return;
+        var b = repo.Branches[branch];
+        if (b != null)
+        {
+            Commands.Checkout(repo, b);
+            return;
+        }
+        var remoteBranch = repo.Branches["origin/" + branch];
+        if (remoteBranch != null)
+        {
+            var local = repo.CreateBranch(branch, remoteBranch.Tip);
+            repo.Branches.Update(local, b => b.TrackedBranch = remoteBranch.CanonicalName);
+            Commands.Checkout(repo, local);
+            return;
+        }
+        var head = repo.Head;
+        var newBranch = repo.CreateBranch(branch, head.Tip);
+        Commands.Checkout(repo, newBranch);
     }
 }
