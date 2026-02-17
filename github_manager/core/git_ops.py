@@ -35,6 +35,28 @@ def _run(
         return -1, "", str(e)
 
 
+def set_git_user(workspace_path: str, name: str, email: str) -> tuple[bool, str]:
+    """
+    Set git user.name and user.email for the repository.
+    Returns (success, message).
+    """
+    code_name, out_name, err_name = _run(
+        ["git", "config", "user.name", name],
+        cwd=workspace_path,
+    )
+    if code_name != 0:
+        return False, f"Failed to set user.name: {err_name}"
+    
+    code_email, out_email, err_email = _run(
+        ["git", "config", "user.email", email],
+        cwd=workspace_path,
+    )
+    if code_email != 0:
+        return False, f"Failed to set user.email: {err_email}"
+    
+    return True, f"Git user configured: {name} <{email}>"
+
+
 def clone_repo(clone_url: str, pat: str, workspace_path: str) -> tuple[bool, str]:
     """
     Clone via HTTPS with PAT in URL: https://<pat>@github.com/owner/repo.git
@@ -65,14 +87,23 @@ def add_commit_push(
     rel_path: str,
     commit_message: str,
     pat: str,
+    user_name: str = "",
+    user_email: str = "",
     remote_name: str = "origin",
     branch: str | None = None,
 ) -> tuple[bool, str, str]:
     """
     git add <rel_path>, git commit -m "...", git push.
+    If user_name and user_email are provided, set git config before committing.
     Returns (success, commit_sha, stderr_or_message).
     commit_sha is empty if failed.
     """
+    # Set git user if provided
+    if user_name and user_email:
+        ok, msg = set_git_user(workspace_path, user_name, user_email)
+        if not ok:
+            return False, "", msg
+    
     code, out, err = _run(["git", "add", rel_path], cwd=workspace_path)
     if code != 0:
         return False, "", (out + "\n" + err).strip()

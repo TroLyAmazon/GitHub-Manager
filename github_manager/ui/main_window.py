@@ -2,6 +2,7 @@
 Main window with sidebar navigation: Accounts, Repositories, Commit & Push, Runs / Logs.
 """
 import os
+import re
 import sys
 import webbrowser
 from PySide6.QtWidgets import (
@@ -18,14 +19,50 @@ from PySide6.QtWidgets import (
     QDialog,
     QLabel,
     QPushButton,
+    QMessageBox,
 )
-from PySide6.QtCore import Qt
+from PySide6.QtCore import Qt, QThread, Signal
 from PySide6.QtGui import QFont, QIcon, QAction
 
 from .accounts_page import AccountsPage
 from .repos_page import ReposPage
 from .commit_page import CommitPage
 from .runs_page import RunsPage
+
+RELEASES_URL = "https://github.com/TroLyAmazon/GitHub-Manager/releases"
+
+
+def _parse_version(s: str) -> tuple[int, ...]:
+    """Chuyển '1.0.0' hoặc 'v1.0.0' thành (1, 0, 0)."""
+    s = (s or "").strip().lstrip("vV")
+    parts = re.findall(r"\d+", s)
+    return tuple(int(p) for p in parts[:3]) if parts else (0, 0, 0)
+
+
+class CheckUpdateWorker(QThread):
+    """Gọi GitHub API lấy latest release, so sánh với version hiện tại."""
+    result = Signal(bool, str, str)  # has_newer, latest_tag, message
+
+    def __init__(self, current_version: str, parent=None):
+        super().__init__(parent)
+        self.current_version = current_version
+
+    def run(self):
+        try:
+            from core.github_api import get_latest_release
+            release = get_latest_release("TroLyAmazon", "GitHub-Manager")
+            if not release:
+                self.result.emit(False, "", "Không lấy được thông tin bản phát hành.")
+                return
+            tag = (release.get("tag_name") or "").strip()
+            current = _parse_version(self.current_version)
+            latest = _parse_version(tag)
+            if latest > current:
+                self.result.emit(True, tag, f"Có bản mới: {tag}")
+            else:
+                self.result.emit(False, tag, "Bạn đang dùng bản mới nhất.")
+        except Exception as e:
+            self.result.emit(False, "", f"Lỗi: {e}")
 
 
 def _app_root():
@@ -111,12 +148,15 @@ class MainWindow(QMainWindow):
         layout.addWidget(self.sidebar)
         layout.addWidget(self.stack, 1)
 
-        # Menu: Help -> About
+        # Menu: Help -> About, Check for updates
         menubar = self.menuBar()
         help_menu = menubar.addMenu("&Help")
         about_action = QAction("&About GitHub Manager", self)
         about_action.triggered.connect(self._show_about)
         help_menu.addAction(about_action)
+        self.check_update_action = QAction("Check for &updates", self)
+        self.check_update_action.triggered.connect(self._check_for_updates)
+        help_menu.addAction(self.check_update_action)
 
         # Style sidebar
         self.sidebar.setFrameShape(QFrame.Shape.NoFrame)
@@ -141,6 +181,29 @@ class MainWindow(QMainWindow):
 
     def _show_about(self):
         AboutDialog(self._version, self._github_url, self).exec()
+
+    def _check_for_updates(self):
+        self.check_update_action.setEnabled(False)
+        self._update_worker = CheckUpdateWorker(self._version, self)
+        self._update_worker.result.connect(self._on_update_result)
+        self._update_worker.finished.connect(lambda: self.check_update_action.setEnabled(True))
+        self._update_worker.finished.connect(self._update_worker.deleteLater)
+        self._update_worker.start()
+
+    def _on_update_result(self, has_newer: bool, latest_tag: str, message: str):
+        self.check_update_action.setEnabled(True)
+        if has_newer:
+            msg = f"{message}\n\nTải bản mới tại:\n{RELEASES_URL}"
+            box = QMessageBox(self)
+            box.setWindowTitle("Cập nhật")
+            box.setText(msg)
+            open_btn = box.addButton("Mở trang Releases", QMessageBox.ButtonRole.ActionRole)
+            box.addButton(QMessageBox.StandardButton.Ok)
+            box.exec()
+            if box.clickedButton() == open_btn:
+                webbrowser.open(RELEASES_URL)
+        else:
+            QMessageBox.information(self, "Check for updates", message)
 
     def _on_page_changed(self, row: int):
         if row >= 0:

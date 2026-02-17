@@ -117,11 +117,18 @@ class CommitWorker(QThread):
                 import shutil
                 shutil.copy2(src, dest_abs)
                 commit_msg = f"Upload {os.path.basename(dest_abs)}"
+                
+                # Get user name and email from account
+                user_name = self.account.get("name", self.account.get("login", ""))
+                user_email = self.account.get("email", f"{self.account.get('login', 'user')}@users.noreply.github.com")
+                
                 ok, commit_sha, err = add_commit_push(
                     workspace,
                     rel_path,
                     commit_msg,
                     token,
+                    user_name=user_name,
+                    user_email=user_email,
                     branch=self.branch or None,
                 )
                 end_time = datetime.utcnow().isoformat() + "Z"
