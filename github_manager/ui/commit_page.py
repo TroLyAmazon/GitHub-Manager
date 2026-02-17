@@ -191,6 +191,12 @@ class CommitPage(QWidget):
         self.add_files_btn = QPushButton("Select files...")
         self.add_files_btn.clicked.connect(self._select_files)
         r4.addWidget(self.add_files_btn)
+        self.remove_file_btn = QPushButton("✕ Xóa file đã chọn")
+        self.remove_file_btn.clicked.connect(self._remove_selected_files)
+        r4.addWidget(self.remove_file_btn)
+        self.clear_files_btn = QPushButton("Xóa hết danh sách")
+        self.clear_files_btn.clicked.connect(self._clear_all_files)
+        r4.addWidget(self.clear_files_btn)
         r4.addStretch()
         layout.addLayout(r4)
 
@@ -231,6 +237,16 @@ class CommitPage(QWidget):
         self._clone_url_map.clear()
         self.repo_combo.clear()
         self.branch_combo.clear()
+        self._clear_all_files()
+
+    def _remove_selected_files(self):
+        for item in self.files_list.selectedItems():
+            self.files_list.takeItem(self.files_list.row(item))
+        self._update_preview()
+
+    def _clear_all_files(self):
+        self.files_list.clear()
+        self._update_preview()
 
     def _load_repos_for_commit(self):
         acc = self.account_combo.currentData()
@@ -266,6 +282,7 @@ class CommitPage(QWidget):
 
     def _on_repo_changed(self):
         self.branch_combo.clear()
+        self._clear_all_files()
         repo = self.repo_combo.currentData()
         if repo:
             default = repo.get("default_branch", "main")
