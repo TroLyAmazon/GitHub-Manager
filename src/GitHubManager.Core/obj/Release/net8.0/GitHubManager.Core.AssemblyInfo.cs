@@ -11,9 +11,9 @@ using System;
 using System.Reflection;
 
 [assembly: System.Reflection.AssemblyCompanyAttribute("GitHubManager.Core")]
-[assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
+[assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ba87a4ce9cfe998dffdf57ec56213eb964138014")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+834c07ffbfd5890c1dbe9e6d0d427b089279c8ae")]
 [assembly: System.Reflection.AssemblyProductAttribute("GitHubManager.Core")]
 [assembly: System.Reflection.AssemblyTitleAttribute("GitHubManager.Core")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

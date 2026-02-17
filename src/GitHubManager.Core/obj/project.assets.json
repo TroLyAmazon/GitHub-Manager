@@ -179,7 +179,7 @@
     "net8.0": [
       "CredentialManagement >= 1.0.2",
       "LibGit2Sharp >= 0.30.0",
-      "Octokit >= 0.56.0"
+      "Octokit >= 1.0.0"
     ]
   },
   "packageFolders": {
@@ -243,7 +243,7 @@
           },
           "Octokit": {
             "target": "Package",
-            "version": "[0.56.0, )"
+            "version": "[1.0.0, )"
           }
         },
         "imports": [
@@ -267,16 +267,6 @@
     }
   },
   "logs": [
-    {
-      "code": "NU1603",
-      "level": "Warning",
-      "warningLevel": 1,
-      "message": "GitHubManager.Core depends on Octokit (>= 0.56.0) but Octokit 0.56.0 was not found. Octokit 1.0.0 was resolved instead.",
-      "libraryId": "Octokit",
-      "targetGraphs": [
-        "net8.0"
-      ]
-    },
     {
       "code": "NU1701",
       "level": "Warning",

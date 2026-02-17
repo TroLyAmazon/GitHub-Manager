@@ -61,7 +61,7 @@
             },
             "Octokit": {
               "target": "Package",
-              "version": "[0.56.0, )"
+              "version": "[1.0.0, )"
             }
           },
           "imports": [
