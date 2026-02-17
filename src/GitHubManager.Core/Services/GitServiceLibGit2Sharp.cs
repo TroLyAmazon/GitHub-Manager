@@ -14,16 +14,11 @@ public sealed class GitServiceLibGit2Sharp : IGitService
 
         await Task.Run(() =>
         {
-            var co = new CloneOptions
+            var co = new CloneOptions();
+            co.FetchOptions.CredentialsProvider = (_, _, _) => new UsernamePasswordCredentials
             {
-                FetchOptions = new FetchOptions
-                {
-                    CredentialsProvider = (_, _, _) => new UsernamePasswordCredentials
-                    {
-                        Username = "x-access-token",
-                        Password = token
-                    }
-                }
+                Username = "x-access-token",
+                Password = token
             };
             Repository.Clone(cloneUrl, workspacePath, co);
         }, ct).ConfigureAwait(false);
@@ -40,7 +35,7 @@ public sealed class GitServiceLibGit2Sharp : IGitService
         var entry = status[relativePathInRepo.Replace('\\', '/')];
         if (entry == null)
             return true;
-        return entry.State == FileStatus.None;
+        return (entry?.State ?? (FileStatus)0) == 0;
     }
 
     public async Task<(string Sha, long BytesSent, double DurationSeconds)> CommitAndPushAsync(

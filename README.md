@@ -10,11 +10,17 @@ WinUI 3 (.NET 8) desktop app to manage multiple GitHub accounts (Fine-grained PA
 
 ## Build
 
+**Recommended:** Open `GitHubManager.sln` in **Visual Studio 2022** (with "Desktop development with C++" or Windows SDK workload) and build from there (F6). This avoids known XAML compiler issues when using `dotnet build` from CLI.
+
+From command line:
+
 ```bash
 cd d:\Desktop\GitHub-Manager
 dotnet restore
-dotnet build -c Release
+dotnet build -c Release -p:Platform=x64
 ```
+
+If XamlCompiler fails with exit code 1 (no diagnostic output), build from Visual Studio or ensure Windows SDK 10.0.22621+ is installed.
 
 ## Run
 

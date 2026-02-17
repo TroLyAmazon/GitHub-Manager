@@ -1,0 +1,13 @@
+D:\Desktop\GitHub-Manager\src\GitHubManager.Core\bin\x64\Release\net8.0\GitHubManager.Core.deps.json
+D:\Desktop\GitHub-Manager\src\GitHubManager.Core\bin\x64\Release\net8.0\GitHubManager.Core.dll
+D:\Desktop\GitHub-Manager\src\GitHubManager.Core\bin\x64\Release\net8.0\GitHubManager.Core.pdb
+D:\Desktop\GitHub-Manager\src\GitHubManager.Core\obj\x64\Release\net8.0\GitHubManager.Core.csproj.AssemblyReference.cache
+D:\Desktop\GitHub-Manager\src\GitHubManager.Core\obj\x64\Release\net8.0\GitHubManager.Core.GeneratedMSBuildEditorConfig.editorconfig
+D:\Desktop\GitHub-Manager\src\GitHubManager.Core\obj\x64\Release\net8.0\GitHubManager.Core.AssemblyInfoInputs.cache
+D:\Desktop\GitHub-Manager\src\GitHubManager.Core\obj\x64\Release\net8.0\GitHubManager.Core.AssemblyInfo.cs
+D:\Desktop\GitHub-Manager\src\GitHubManager.Core\obj\x64\Release\net8.0\GitHubManager.Core.csproj.CoreCompileInputs.cache
+D:\Desktop\GitHub-Manager\src\GitHubManager.Core\obj\x64\Release\net8.0\GitHubManager.Core.sourcelink.json
+D:\Desktop\GitHub-Manager\src\GitHubManager.Core\obj\x64\Release\net8.0\GitHubManager.Core.dll
+D:\Desktop\GitHub-Manager\src\GitHubManager.Core\obj\x64\Release\net8.0\refint\GitHubManager.Core.dll
+D:\Desktop\GitHub-Manager\src\GitHubManager.Core\obj\x64\Release\net8.0\GitHubManager.Core.pdb
+D:\Desktop\GitHub-Manager\src\GitHubManager.Core\obj\x64\Release\net8.0\ref\GitHubManager.Core.dll
